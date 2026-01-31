@@ -14,7 +14,7 @@ let roomLabels = {};
 let labelToCell = {};
 let algorithmResults = [];
 
-/* ---------- COST ---------- */
+// Cost Function
 function movementCost(r,c){
     let label = roomLabels[`${r}-${c}`] || "";
 
@@ -24,7 +24,7 @@ function movementCost(r,c){
     return 1;
 }
 
-/* ---------- MAP ---------- */
+// Map
 function generateMap(){
     floors = [];
     dynamicDone = false;
@@ -48,7 +48,7 @@ function generateMap(){
     drawGrid();
 }
 
-/* ---------- LABELS ---------- */
+// Blocks Label
 function generateLabels(floor){
     roomLabels = {};
     labelToCell = {};
@@ -59,7 +59,6 @@ function generateLabels(floor){
         floors[floor][r][c].blocked = false;
     }
 
-    /* ---- CLASSROOMS A B C ---- */
     let blocks = ["A","B","C"];
     let roomIndex = 0;
 
@@ -78,16 +77,13 @@ function generateLabels(floor){
         }
     });
 
-    /* ---- FACILITIES ---- */
     addLabel(0,5,"Ladies WC");
     addLabel(1,5,"Gents WC");
 
-    /* ---- MULTIPLE LIFTS ---- */
     addLabel(4,4,"Lift-1");
     addLabel(2,2,"Lift-2");
     addLabel(7,7,"Lift-3");
 
-    /* ---- MULTIPLE STAIRS ---- */
     addLabel(5,4,"Stairs-1");
     addLabel(1,8,"Stairs-2");
     addLabel(8,1,"Stairs-3");
@@ -107,7 +103,7 @@ function generateLabels(floor){
     populateSelectors();
 }
 
-/* ---------- SELECTORS ---------- */
+// Selector Logic
 function populateSelectors(){
     let s=document.getElementById("startSelect");
     let g=document.getElementById("goalSelect");
@@ -134,7 +130,7 @@ function updateStartGoal(){
     drawGrid();
 }
 
-/* ---------- GRID ---------- */
+// Grid 
 function drawGrid(){
     const g=document.getElementById("grid");
     g.innerHTML="";
@@ -166,7 +162,7 @@ function paintBestPath(){
     });
 }
 
-/* ---------- NEIGHBORS ---------- */
+// Neighbors Logic
 function neighbors(r,c){
     const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
     let grid=floors[currentFloor];
@@ -180,7 +176,6 @@ function neighbors(r,c){
 
             let label = roomLabels[`${nr}-${nc}`] || "";
 
-            // Always allow start and goal
             if(
                 (nr === goal[0] && nc === goal[1]) ||
                 (nr === start[0] && nc === start[1])
@@ -189,7 +184,6 @@ function neighbors(r,c){
                 continue;
             }
 
-            // ❌ Block classrooms and restricted rooms
             if(
                 label.startsWith("A-") ||
                 label.startsWith("B-") ||
@@ -200,8 +194,6 @@ function neighbors(r,c){
             ){
                 continue;
             }
-
-            // ✅ allow corridor / lift / stairs / entries
             res.push([nr,nc]);
         }
     }
@@ -210,7 +202,7 @@ function neighbors(r,c){
 }
 
 
-/* ---------- PATH ---------- */
+// Path Logic
 function reconstruct(parent,end){
     let path=[];
     let cur=end.toString();
@@ -224,7 +216,7 @@ function reconstruct(parent,end){
     return path.reverse();
 }
 
-/* ---------- SEARCH ---------- */
+// Search Logic
 function runSearch(type){
     let open=[start];
     let parent={};
@@ -268,12 +260,12 @@ function runSearch(type){
     return null;
 }
 
-/* ---------- PATH COST ---------- */
+// Path Costing
 function pathCost(path){
     return path.reduce((sum,p)=>sum+movementCost(...p),0);
 }
 
-/* ---------- BLOCK PATH ---------- */
+// Path Blocking Logic
 function blockPathCells(path){
     let grid=floors[currentFloor];
     let blocks=3+Math.floor(Math.random()*3);
@@ -284,14 +276,12 @@ function blockPathCells(path){
     }
 }
 
-/* ---------- TABLE ---------- */
 function clearTable(){
     algorithmResults=[];
     document.getElementById("analysisTable").innerHTML=
     "<tr><th>Algorithm</th><th>Length</th><th>Cost</th><th>Nodes</th><th>Time</th></tr>";
 }
 
-/* ---------- RUN ---------- */
 function runAllAlgorithms(){
     clearTable();
 
@@ -336,7 +326,7 @@ function runAllAlgorithms(){
         }
     });
 
-    /* ---------- IF NO PATH FOUND ---------- */
+// Logic if no any path is found
     if(!foundAnyPath){
         lastPath=[];
         drawGrid();
@@ -360,8 +350,7 @@ function runAllAlgorithms(){
     generateConclusion();
 }
 
-
-/* ---------- CONCLUSION ---------- */
+// Conclusion
 function generateConclusion(){
 
     if(algorithmResults.length === 0) return;
